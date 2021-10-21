@@ -73,7 +73,7 @@ class ThreadServidor(Thread):
         if mensajeComprobacionHash == "La integridad del archivo es correcta":
             mensajeFinal = f"El archivo {self.nArchivo} del cliente {self.id} tiene comprobacion de integridad correcta:\n\tHash Recibido: {self.hashServidor.hex()}\n\tHash Calculado: {self.hashCalculado.hex()}\n\tTamaño archivo original: {self.tamanioArchivoServidor}\n\tTamaño archivo recibido: {tamanioArchivo}\n"
         else:
-            mensajeFinal = f"El archivo {self.nArchivo} del cliente {self.id} tiene comprobacion de integridad incorrecta.:\n\tHash Recibido: {self.hashServidor.hex()}\n\tHash Calculado: {self.hashCalculado.hex()}\n\tTamaño archivo original: {self.tamanioArchivoServidor}\n\tTamaño archivo recibido: {tamanioArchivo}\n"
+            mensajeFinal = f"El archivo {self.nArchivo} del cliente {self.id} tiene comprobacion de integridad incorrecta:\n\tHash Recibido: {self.hashServidor.hex()}\n\tHash Calculado: {self.hashCalculado.hex()}\n\tTamaño archivo original: {self.tamanioArchivoServidor}\n\tTamaño archivo recibido: {tamanioArchivo}\n"
 
         self.socket.sendto(mensajeComprobacionHash.encode(), self.address)
         file3 = open(f"Logs/{date} Cliente{self.id}.txt", "w")
