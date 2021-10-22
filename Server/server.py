@@ -1,6 +1,6 @@
 import copy
 from socket import socket, AF_INET, SOCK_DGRAM
-from threading import Thread, RLock
+from threading import Thread
 from hashlib import sha256
 from time import time, sleep
 import os
@@ -28,26 +28,28 @@ class ThreadCliente(Thread):
 
     def run(self):
         global diccionarioComprobacionesHashArchivos, estadisticasTransmision, socketServerUDP, entregados
-        with RLock:
-            socketServerUDP.sendto(str(self.id).encode(), self.direccionCliente)
-            socketServerUDP.sendto(self.nombreArchivo.encode(), self.direccionCliente)
-            socketServerUDP.sendto(str(self.tamanioArchivo).encode(), self.direccionCliente)
-            socketServerUDP.sendto(self.hashCode, self.direccionCliente)
+        socketServerUDP.sendto(str(self.id).encode(), self.direccionCliente)
+        socketServerUDP.sendto(
+            self.nombreArchivo.encode(), self.direccionCliente)
+        socketServerUDP.sendto(
+            str(self.tamanioArchivo).encode(), self.direccionCliente)
+        socketServerUDP.sendto(self.hashCode, self.direccionCliente)
         self.startEnvio = time()
         cent = True
         start = 0
         finish = MAX_BUFFER_SIZE
         while cent:
-            with RLock:
-                socketServerUDP.sendto(self.bytesArchivo[start:finish], self.direccionCliente)
+
+            socketServerUDP.sendto(
+                self.bytesArchivo[start:finish], self.direccionCliente)
             start += MAX_BUFFER_SIZE
             finish += MAX_BUFFER_SIZE
             if bytesArchivo[start:finish] == ''.encode():
                 cent = False
-        with RLock:
-            socketServerUDP.sendto("ArchivoEnviado".encode(),self.direccionCliente)
-        with RLock:
-            resultado, adrsClient = socketServerUDP.recvfrom(BUFFER_SIZE)
+
+        socketServerUDP.sendto("ArchivoEnviado".encode(),
+                               self.direccionCliente)
+        resultado, adrsClient = socketServerUDP.recvfrom(BUFFER_SIZE)
         estadisticasTransmision[self.id] = time() - self.startEnvio
         resultado = resultado.decode()
         print("Resultado Hash", resultado)
