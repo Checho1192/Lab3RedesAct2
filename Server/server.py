@@ -9,7 +9,7 @@ from datetime import datetime
 diccionarioComprobacionesHashArchivos = {}
 estadisticasTransmision = {}
 BUFFER_SIZE = 512
-MAX_BUFFER_SIZE = 64000
+MAX_BUFFER_SIZE = 32768
 entregados = 0
 
 

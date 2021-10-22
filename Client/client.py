@@ -4,7 +4,7 @@ from hashlib import sha256
 from time import time
 from datetime import datetime
 from os import path
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 512
 MAX_BUFFER_SIZE = 64000
 
 
