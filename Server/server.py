@@ -1,6 +1,6 @@
 import copy
 from socket import socket, AF_INET, SOCK_DGRAM
-from threading import Thread
+from threading import Thread, Lock
 from hashlib import sha256
 from time import time, sleep
 import os
@@ -8,7 +8,7 @@ from datetime import datetime
 
 diccionarioComprobacionesHashArchivos = {}
 estadisticasTransmision = {}
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 MAX_BUFFER_SIZE = 64000
 entregados = 0
 
@@ -28,27 +28,26 @@ class ThreadCliente(Thread):
 
     def run(self):
         global diccionarioComprobacionesHashArchivos, estadisticasTransmision, socketServerUDP, entregados
-        socketServerUDP.sendto(str(self.id).encode(), self.direccionCliente)
-        socketServerUDP.sendto(
-            self.nombreArchivo.encode(), self.direccionCliente)
-        socketServerUDP.sendto(
-            str(self.tamanioArchivo).encode(), self.direccionCliente)
-        socketServerUDP.sendto(self.hashCode, self.direccionCliente)
+        with Lock:
+            socketServerUDP.sendto(str(self.id).encode(), self.direccionCliente)
+            socketServerUDP.sendto(self.nombreArchivo.encode(), self.direccionCliente)
+            socketServerUDP.sendto(str(self.tamanioArchivo).encode(), self.direccionCliente)
+            socketServerUDP.sendto(self.hashCode, self.direccionCliente)
         self.startEnvio = time()
         cent = True
         start = 0
         finish = MAX_BUFFER_SIZE
         while cent:
-            socketServerUDP.sendto(
-                self.bytesArchivo[start:finish], self.direccionCliente)
+            with Lock:
+                socketServerUDP.sendto(self.bytesArchivo[start:finish], self.direccionCliente)
             start += MAX_BUFFER_SIZE
             finish += MAX_BUFFER_SIZE
             if bytesArchivo[start:finish] == ''.encode():
                 cent = False
-            sleep(0.001)
-        socketServerUDP.sendto("ArchivoEnviado".encode(),
-                               self.direccionCliente)
-        resultado, adrsClient = socketServerUDP.recvfrom(BUFFER_SIZE)
+        with Lock:
+            socketServerUDP.sendto("ArchivoEnviado".encode(),self.direccionCliente)
+        with Lock:
+            resultado, adrsClient = socketServerUDP.recvfrom(BUFFER_SIZE)
         estadisticasTransmision[self.id] = time() - self.startEnvio
         resultado = resultado.decode()
         print("Resultado Hash", resultado)

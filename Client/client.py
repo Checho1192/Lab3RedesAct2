@@ -1,18 +1,18 @@
-from socket import socket, AF_INET, SOCK_DGRAM
+from socket import socket, AF_INET, SOCK_DGRAM, timeout
 from threading import Thread
 from hashlib import sha256
 from time import time
 from datetime import datetime
 from os import path
-BUFFER_SIZE = 4096
+BUFFER_SIZE = 1024
 MAX_BUFFER_SIZE = 64000
 
 
 class ThreadServidor(Thread):
-    def __init__(self, id, socket, address, nConexiones):
+    def __init__(self, id, address, nConexiones):
         Thread.__init__(self)
         self.id = id
-        self.socket = socket
+        self.socket = socket(AF_INET, SOCK_DGRAM)
         self.numeroConexiones = nConexiones
         self.tamanioArchivoServidor = None
         self.nArchivo = ""
@@ -47,7 +47,7 @@ class ThreadServidor(Thread):
                 try:
                     response, addressServer = self.socket.recvfrom(
                         MAX_BUFFER_SIZE)
-                except:
+                except timeout:
                     cent = False
             else:
                 cent = False
@@ -111,10 +111,9 @@ while True:
 port = 8000
 arregloClientes = []
 for i in range(numeroDeClientes):
-    sckt = socket(AF_INET, SOCK_DGRAM)
     print(
         f"Conexion del cliente {i} al servidor con ip {host} y puerto {port}")
-    thread = ThreadServidor(i, sckt, (host, port), numeroDeClientes)
+    thread = ThreadServidor(i, (host, port), numeroDeClientes)
     arregloClientes.append(thread)
 for thread in arregloClientes:
     thread.start()
