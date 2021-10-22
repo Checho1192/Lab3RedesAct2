@@ -5,7 +5,7 @@ from time import time
 from datetime import datetime
 from os import path
 BUFFER_SIZE = 512
-MAX_BUFFER_SIZE = 64000
+MAX_BUFFER_SIZE = 32768
 
 
 class ThreadServidor(Thread):
